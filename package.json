@@ -1,0 +1,38 @@
+{
+  "name": "serverbully",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx webpack-dev-server",
+    "bundle": "npx webpack -d",
+    "devCli": "npx nodemon ./js/client.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jehernandezv/ServerBully.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jehernandezv/ServerBully/issues"
+  },
+  "homepage": "https://github.com/jehernandezv/ServerBully#readme",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.14.0",
+    "axios": "^0.20.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "html-webpack-plugin": "^4.3.0",
+    "webpack": "^4.43.0"
+  },
+  "devDependencies": {
+    "css-loader": "^3.6.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.4",
+    "style-loader": "^1.2.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  }
+}
