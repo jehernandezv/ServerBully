@@ -12,23 +12,24 @@ app.use(cors());
 app.use(morgan('dev'));
 
 const server = app.listen(port, () => {
-  console.log('Escuchando en el puerto node client: ' + port);
+    console.log('Escuchando en el puerto node client: ' + port);
 });
 
 var valueNode = Math.floor(Math.random() * (100 - 1) + 1);
 var listNodes = [];
-var host = 'http://localhost:'+port;
+var give = 0;
+var host = 'http://localhost:' + port;
 let hostSocket = io(server);
 
 hostSocket.on('connection', node => {
     console.log('Nueva conexión:', node.id);
-    axios.post('http://localhost:4000/newConn',{
+    axios.post('http://localhost:4000/newConn', {
         value: valueNode,
-        url:'http://localhost:'+port
+        url: 'http://localhost:' + port
     }).then((response) => {
-        console.log('new node: '+response.data.list);
+        console.log('new node: ' + response.data.list);
         listNodes = JSON.parse(response.data.list);
-    }).catch((error) =>{
+    }).catch((error) => {
         console.log(error);
     });
 });
@@ -38,15 +39,38 @@ app.post('/updateList', function (req, res, next) {
     var data = req.body;
     console.log('update list: ' + data.list);
     listNodes = JSON.parse(data.list);
-
     //validar si soy el lider o quien es
-    
+
     res.json({
-        message:'Recibi update'
+        message: 'Recibi update'
     });
 });
 
+app.get('/alive', function (req, res, next) {
+    console.log("ENTRO");
+    res.json({
+        leader: give
+    });
+});
 
+function latido() {
+    listNodes.forEach(element => {
+        if (host == element.url && element.leader == 1) {
+            console.log("SOY EL LIDER: " + element.url + " que es igual a " + host + " numero " + element.leader);
+        } else if (element.leader == 1) {
+            console.log("EL LIDER ES: " + element.url);
+            axios.get(element.url + '/alive', {})
+                .then((response) => {
+                    console.log('¿QUIERE SEGUIR? ' + response.leader);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+    });
+
+}
+setInterval(latido, 4000);
 /*
 //llega la lista de nodos conectados
 hostSocket.on('res:list', function (list) {
