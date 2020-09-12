@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx webpack-dev-server",
     "bundle": "npx webpack -d",
-    "devCli": "npx nodemon ./js/client.js"
+    "dev": "npx nodemon ./server.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
     "axios": "^0.20.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "fs": "0.0.1-security",
     "html-webpack-plugin": "^4.3.0",
     "socket.io": "^2.3.0",
     "webpack": "^4.43.0"
