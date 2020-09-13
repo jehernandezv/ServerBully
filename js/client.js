@@ -1,1 +1,1 @@
-var hostSocket = io('http://localhost:4202');
+var hostSocket = io('http://localhost:7000');
