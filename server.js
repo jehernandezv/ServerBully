@@ -28,12 +28,20 @@ let hostSocket = io(server);
 
 hostSocket.on('connection', node => {
     console.log('Nueva conexión:', node.id);
-
     //botton ya no quiero ser lider
     node.on('give', () => {
         console.log('Ya no quiero ser lider');
         isLeader = 0;
         give = 0;
+
+    //aviso a la vista que no quiero ser lider en caso de no ser lider
+        hostSocket.emit('give',{
+            Host: host,
+            Value: valueNode,
+            IsLeader: isLeader,
+            Leader: leader,
+            Message : 'Ya no quiero ser lider'
+        });
     });
 
     axios.post('http://localhost:4000/newConn', {
@@ -57,6 +65,14 @@ hostSocket.on('connection', node => {
                 valueNode = element.value
             }
         });
+        //notificar a ala vista que entre 
+        hostSocket.emit('newConn',{
+            Host: host,
+            Value: valueNode,
+            IsLeader: isLeader,
+            Leader: leader,
+            Message: 'Hola soy un nuevo nodo'
+            });
     }).catch((error) => {
         console.log(error);
     });
@@ -88,6 +104,11 @@ app.post('/updateList', function (req, res, next) {
         message: 'Recibi update'
     });
     give = 1;
+    //actualizar vista cada que se haga un update
+    hostSocket.emit('updateList',{
+        updateList: JSON.stringify(listNodes)
+    });
+
     interval = setInterval(latido, timeAlive);
 });
 
@@ -98,33 +119,100 @@ app.post('/choise',function (req, res, next) {
     //Evaluo si entro en la eleccion
     if(req.body.value < valueNode){
         console.log('entro en la elección');
+        //envio a ala vista que entro a participar
+        hostSocket.emit('participate',{
+            Host: host,
+            Value: valueNode,
+            IsLeader: isLeader,
+            Leader: leader,
+            Message: 'Elección / Entro en la elección'
+        })
     res.json({
         url:host,
         value:valueNode
     });
   }else{
     console.log('no responden por valor inferior');
+     //envio a ala vista que no entro a participar
+    hostSocket.emit('Notparticipate',{
+        Host: host,
+        Value: valueNode,
+        IsLeader: isLeader,
+        Leader: leader,
+        Message: 'Elección / No puedo entrar a la elección'
+    })
+
   }
 });
 
+app.post('/reportLeader', function(req, res, next){
+    //vista del nuevo leader
+    hostSocket.emit('newLeader',{
+        Host: host,
+        Value: valueNode,
+        IsLeader: isLeader,
+        Leader: leader,
+        Message: 'el nuevo lider es: ' + req.body.leader
+    });
+    res.json({
+        message:'he recibido el nuevo lider'
+    });
+});
+
 app.get('/alive', function (req, res) {
+    //vista para si quiero seguir siendo lider
+    hostSocket.emit('alive',{
+        Host: host,
+        Value: valueNode,
+        IsLeader: isLeader,
+        Leader: leader,
+        Message: 'Me estan preguntando si quiero seguir siendo lider...'
+    })
     res.json({
         give: give
     });
 });
 
-interval = setInterval(latido, timeAlive);
+
 
 async function latido() {
     console.log('timeRandom: ' + timeAlive);
     if(isLeader == 0){
+        //vista para mostrar que estoy haciendo pulsaciones
+        hostSocket.emit('pulsation',{
+            Host: host,
+            Value: valueNode,
+            IsLeader: isLeader,
+            Leader: leader,
+            Message: 'Estoy haciendo pulsacion al: ' + leader
+        });
+
             await axios.get(leader + '/alive')
                 .then((response) => {
                     console.log('¿QUIERE SEGUIR? ' + response.data.give);
                     if(response.data.give == 1){
                         timeAlive = timeRandom();
+                        console.log('new time: ' + timeAlive);
+                        //vista cuando el lider quiere seguir siendo lider
+                        hostSocket.emit('detected',{
+                            Host: host,
+                            Value: valueNode,
+                            IsLeader: isLeader,
+                            Leader: leader,
+                            Message: 'El lider: ' + leader + ' seguira siendo lider'
+                        });
+
                     }else{
                         console.log('nueva eleccion, yo paro mi pulsación');
+                        //vista cuando detecto que el lider ya no quiere ser lider
+                        hostSocket.emit('Nodetected',{
+                            Host: host,
+                            Value: valueNode,
+                            IsLeader: isLeader,
+                            Leader: leader,
+                            Message: 'El lider: ' + leader + ' ya no quiere ser lider'
+                        });
+
                         clearInterval(interval);
                         election();
                     }
@@ -136,8 +224,20 @@ async function latido() {
         }
 }
 
+interval = setInterval(latido, timeAlive);
+
 function election(){
     recivedMax = 0;
+
+    //vista de eleccion de un nuevo lider
+    hostSocket.emit('choise',{
+        Host: host,
+        Value: valueNode,
+        IsLeader: isLeader,
+        Leader: leader,
+        Message: 'He lanzado una elección a los otros nodos'
+    });
+
     listNodes.forEach(element => {
         if(element.url != host && element.url != leader){
             axios.post(element.url+'/choise', {
@@ -150,6 +250,9 @@ function election(){
                 recivedMax = 1;
                 //metodo para elegir max
                 if(response.data.value == getMaxNode()){
+            
+                    //envio de leader a los nodos
+                    reportLeader(response.data.url);
                     isLeader = 0;
                     console.log('if de max node: ' + response.data.value);
                     axios.post('http://localhost:4000/newLeader',{
@@ -169,6 +272,8 @@ function election(){
     });
     if(recivedMax == 0 && valueNode == getMaxNode()){
         console.log('detecto la caida y soy el lider');
+        //envio de leader a los nodos
+        reportLeader(host);
         axios.post('http://localhost:4000/newLeader',{
             newLeader: host
         }).then((response) => {
@@ -176,14 +281,24 @@ function election(){
         }).catch((error) => {
             console.log(error.code);
         });
-
-        //aviso que soy el nuevo lider
-        /*listNodes.forEach(element => {
-            axios.post(element.url)
-        });*/
     }
 }
 
+
+function reportLeader(url){
+    listNodes.forEach(element => {
+        if(element.url != url){
+            axios.post(element.url+ '/reportLeader',{
+                leader: url
+            }).then((response) => {
+                console.log(response.message);
+            }).catch((error) => {
+                console.log(error.code);
+            })
+        }
+    });
+
+    }
 function getMaxNode(){
     var max = 0;
     listNodes.forEach(element => {
@@ -195,5 +310,5 @@ function getMaxNode(){
 }
 
 function timeRandom(){
-    return Math.floor(Math.random() * (10000 - 1000) + 1000);
+    return Math.floor(Math.random() * (60000 - 10000) + 10000);
 }

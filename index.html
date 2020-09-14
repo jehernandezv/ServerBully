@@ -1,15 +1,65 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Bully</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <!--<script src='./js/axios.min.js'></script>-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
 </head>
+
+
 <body>
-    <h1>Hola</h1>
-    <button class="btn btn-secondary" id="btn_give">Ya no quiero ser lider</button>
+
+    <div id="app">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand">
+                    <img src="https://images-na.ssl-images-amazon.com/images/I/417MahKs6fL.png"
+                        class="d-inline-block align-top mr-3" width="30" height="35">Algoritmo de Bully
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+            <img src="https://hondurasdigitalchallenge.com/wp-content/uploads/2020/02/Preguntas-claves-para-un-l%C3%ADder-940x580.jpg" class="img-fluid w-75 mt-4">
+        </div>
+
+        <div class="row justify-content-center">
+            <button class="btn btn-secondary mt-4" id="btn_give" disabled>Ya no quiero ser lider</button>
+        </div>
+        
+        <a class="btn btn-primary btn-sm float-right" href="#footer">ir abajo</a>
+
+        <div class="row justify-content-center">
+            <div class="card-body text-secondary">
+                <h5 class="display-5 card-title">¡Registro de cambios!</h5>
+                <table class="table table-striped table-bordered table-dark registryTable" style="width:100%">
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    
+    <footer id="footer"></footer>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 </body>
-</html>
